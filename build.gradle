@@ -1,0 +1,92 @@
+buildscript {
+	ext {
+		springBootVersion = '1.4.4.RELEASE'
+	}
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+	}
+}
+
+plugins {
+	id "com.moowork.node" version "1.1.1"
+}
+
+apply plugin: 'groovy'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+
+jar {
+	baseName = 'week7'
+	version = '0.0.1-SNAPSHOT'
+}
+
+
+repositories {
+	mavenCentral()
+}
+
+
+dependencies {
+
+	compile('org.springframework.boot:spring-boot-starter-data-jpa')
+	compile('org.springframework.boot:spring-boot-starter-security')
+	compile('org.springframework.boot:spring-boot-starter-web')
+	compile('org.codehaus.groovy:groovy')
+	runtime('com.h2database:h2')
+	compile ('org.apache.httpcomponents:httpclient:4.5.2')
+	compile('io.jsonwebtoken:jjwt:0.6.0')
+	compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.6.1") //for serializing ZoneDateTime
+	testCompile('org.springframework.boot:spring-boot-starter-test')
+	testCompile('org.spockframework:spock-core:1.1-groovy-2.4-rc-1') {
+		exclude module:'groovy-all'
+	}
+	testCompile('org.spockframework:spock-spring:1.1-groovy-2.4-rc-1') {
+		exclude module:'groovy-all'
+	}
+	testCompile 'cglib:cglib-nodep:3.2.2' // for stubbing of classes
+	testCompile "org.gebish:geb-spock:1.1.1"
+	testCompile "org.seleniumhq.selenium:selenium-firefox-driver:2.52.0"
+	testCompile "org.seleniumhq.selenium:selenium-chrome-driver:2.52.0"
+	testCompile "org.seleniumhq.selenium:selenium-support:2.52.0"
+
+	// For downloading browser-specific drivers that browsers like Chrome and IE require
+	testCompile("io.github.bonigarcia:webdrivermanager:1.5.0") {
+		exclude group: 'org.seleniumhq.selenium'
+	}
+}
+
+configure(test) {
+	systemProperties System.properties
+}
+
+bootRun {
+	addResources = true
+}
+
+node {
+	version = '7.7.3'
+	npmVersion = '4.1.2'
+	download = true
+	workDir = file("${project.projectDir}/node")
+	nodeModulesDir = file("${project.projectDir}/src/main/javascript/app")
+	npmWorkDir = file("${project.buildDir}/src/main/javascript/app")
+}
+
+npm_run_test.dependsOn npmInstall
+npm_run_build.dependsOn npm_run_test
+
+processResources.dependsOn npm_run_build
+npm_run_start.dependsOn npm_run_build
+
+clean {
+	final def webDir = "${project.projectDir}"
+	delete "${webDir}/node"
+	delete "${webDir}/src/main/javascript/app/node_modules"
+	delete "${webDir}/src/main/resources/static"
+	delete "${webDir}/coverage"
+}
+
+

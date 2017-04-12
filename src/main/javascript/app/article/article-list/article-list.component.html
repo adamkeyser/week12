@@ -1,0 +1,26 @@
+<div class="container" style="margin-top:5em;">
+  <div class="row">
+    <div class="form-group col-lg-4">
+      <label for="category">NYT Category</label>
+      <select class="form-control" [ngModel]="selectedCategory" (ngModelChange)="onCategoryChange($event)" id="category">
+        <option [ngValue]="category" *ngFor="let category of categories">{{category}}</option>
+      </select>
+    </div>
+    <div class="form-group col-lg-4">
+      <label for="time">Time frame</label>
+      <select class="form-control" [ngModel]="selectedTime" (ngModelChange)="onTimeChange($event)" id="time">
+        <option [ngValue]="time" *ngFor="let time of times">{{time}}</option>
+      </select>
+    </div>
+  </div>
+  <div class="row">
+    <div class="well col-lg-4 col-md-4 col-sm-12 col-xs-12" *ngFor="let article of articles" [id]="getArticleId(article)">
+      <a (click)="onSelect(article)"><img class="d-flex mr-3" [src]="getArticleImageUrl(article)" [alt]="article.media[0].caption"></a>
+      <div class="media-body">
+        <h3 class="mt-0">{{article.title}}</h3>
+        <h4 class="mt-0">{{article.byline}}</h4>
+        <p class="lead">{{article.abstract}}</p>
+      </div>
+    </div>
+  </div>
+</div>
